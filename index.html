@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Food Menu</title>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        input {
+            padding: 8px;
+        }
+
+        button {
+            padding: 8px 15px;
+        }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 500px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+
+        th {
+            background-color: lightgray;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Food Menu</h1>
+
+    <input type="number" id="searchID" placeholder="Enter ID">
+    <button onclick="searchMenu()">Search</button>
+    <button onclick="loadMenu()">Show All</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Food/Meal</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+
+        <tbody id="menuTable"></tbody>
+    </table>
+
+    <script>
+
+        async function loadMenu() {
+
+            const response = await fetch("/api/menu");
+            const menu = await response.json();
+
+            displayMenu(menu);
+        }
+
+
+        async function searchMenu() {
+
+            const id = document.getElementById("searchID").value;
+
+            if (id === "") {
+                loadMenu();
+                return;
+            }
+
+            const response = await fetch("/api/menu/" + id);
+
+            if (!response.ok) {
+
+                const table = document.getElementById("menuTable");
+
+                table.innerHTML =
+                    "<tr><td colspan='3'>Food not found</td></tr>";
+
+                return;
+            }
+
+            const item = await response.json();
+
+            displayMenu([item]);
+        }
+
+
+        function displayMenu(menu) {
+
+            const table = document.getElementById("menuTable");
+
+            table.innerHTML = "";
+
+            menu.forEach(item => {
+
+                const row = document.createElement("tr");
+
+                row.innerHTML =
+                    "<td>" + item.id + "</td>" +
+                    "<td>" + item.food + "</td>" +
+                    "<td>₱" + item.price + "</td>";
+
+                table.appendChild(row);
+            });
+        }
+
+
+        loadMenu();
+
+    </script>
+
+</body>
+
+</html>
